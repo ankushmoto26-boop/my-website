@@ -1,297 +1,171 @@
-```html
+
 <!DOCTYPE html>
 <html>
 <head>
-<title>Power Web Tools</title>
+<title>Cyber Encoder</title>
 
 <style>
 
 body{
 margin:0;
-font-family:Arial;
-background:#0f0f0f;
-color:white;
+background:black;
+font-family:monospace;
+color:#00ff00;
+overflow:hidden;
 }
 
-.header{
-background:#111;
-padding:20px;
-font-size:28px;
-text-align:center;
-color:#00ffcc;
+canvas{
+position:fixed;
+top:0;
+left:0;
+z-index:-1;
 }
 
 .container{
-display:flex;
-height:90vh;
-}
-
-.sidebar{
-width:220px;
-background:#151515;
-padding-top:20px;
-}
-
-.sidebar button{
-display:block;
-width:90%;
-margin:10px auto;
-padding:12px;
-background:#00ffcc;
-border:none;
-cursor:pointer;
-border-radius:6px;
-}
-
-.main{
-flex:1;
+width:600px;
+margin:auto;
+margin-top:80px;
+background:rgba(0,0,0,0.8);
 padding:30px;
-overflow:auto;
+border:1px solid #00ff00;
+box-shadow:0 0 20px #00ff00;
+text-align:center;
 }
 
-.tool{
-display:none;
+h1{
+margin-bottom:20px;
 }
 
-input,textarea{
-width:300px;
-padding:10px;
-margin-top:10px;
-}
-
-button.action{
-margin-top:10px;
-padding:10px 20px;
-background:#00ffcc;
-border:none;
-cursor:pointer;
-}
-
-#chatBox{
+textarea{
 width:100%;
-max-width:600px;
-height:350px;
-background:#111;
-border:1px solid #00ffcc;
-overflow-y:auto;
+height:120px;
+background:black;
+border:1px solid #00ff00;
+color:#00ff00;
 padding:10px;
-border-radius:10px;
-margin-bottom:10px;
+font-family:monospace;
+resize:none;
 }
 
-.message{
-padding:8px 12px;
-margin:6px;
-border-radius:8px;
-max-width:70%;
+button{
+margin-top:15px;
+padding:10px 20px;
+background:black;
+border:1px solid #00ff00;
+color:#00ff00;
+cursor:pointer;
+font-family:monospace;
 }
 
-.user{
-background:#00ffcc;
+button:hover{
+background:#00ff00;
 color:black;
-margin-left:auto;
 }
 
-.bot{
-background:#333;
-color:white;
-}
-
-.chatInputArea{
-display:flex;
-gap:10px;
-}
-
-.chatInputArea input{
-flex:1;
-padding:10px;
+.output{
+margin-top:20px;
+padding:15px;
+border:1px solid #00ff00;
+min-height:60px;
 }
 
 </style>
-
 </head>
 
 <body>
 
-<div class="header">⚡ Power Web Tools</div>
+<canvas id="matrix"></canvas>
 
 <div class="container">
 
-<div class="sidebar">
+<h1>Cyber Encoder / Decoder</h1>
 
-<button onclick="show('password')">Password</button>
-<button onclick="show('calc')">Calculator</button>
-<button onclick="show('notes')">Notes</button>
-<button onclick="show('counter')">Text Counter</button>
-<button onclick="show('chat')">AI Chat</button>
+<textarea id="input" placeholder="Enter text..."></textarea>
 
-</div>
-
-<div class="main">
-
-<div id="password" class="tool">
-<h2>Password Generator</h2>
-<button class="action" onclick="generate()">Generate</button>
-<p id="pass"></p>
-</div>
-
-<div id="calc" class="tool">
-<h2>Calculator</h2>
-<input id="calcInput">
 <br>
-<button class="action" onclick="calculate()">Calculate</button>
-<p id="calcResult"></p>
-</div>
 
-<div id="notes" class="tool">
-<h2>Notes</h2>
-<textarea id="notesText"></textarea>
-<br>
-<button class="action" onclick="saveNotes()">Save</button>
-</div>
+<button onclick="encode()">Encode</button>
+<button onclick="decode()">Decode</button>
 
-<div id="counter" class="tool">
-<h2>Text Counter</h2>
-<textarea id="text"></textarea>
-<br>
-<button class="action" onclick="count()">Count</button>
-<p id="countResult"></p>
-</div>
-
-<div id="chat" class="tool">
-
-<h2>AI Chat</h2>
-
-<div id="chatBox"></div>
-
-<div class="chatInputArea">
-<input id="chatInput" placeholder="Type a message..." onkeypress="enterSend(event)">
-<button onclick="sendMessage()">Send</button>
-</div>
-
-</div>
-
-</div>
+<div class="output" id="output"></div>
 
 </div>
 
 <script>
 
-function show(id){
+/* Encoder */
 
-let tools=document.querySelectorAll(".tool")
+function encode(){
 
-tools.forEach(t=>t.style.display="none")
+let text=document.getElementById("input").value
 
-document.getElementById(id).style.display="block"
+let encoded=btoa(text)
 
-}
-
-show("password")
-
-function generate(){
-
-let chars="abcdefghijklmnopqrstuvwxyz0123456789"
-
-let pass=""
-
-for(let i=0;i<12;i++){
-
-pass+=chars[Math.floor(Math.random()*chars.length)]
+document.getElementById("output").innerText=encoded
 
 }
 
-document.getElementById("pass").innerText=pass
+/* Decoder */
+
+function decode(){
+
+let text=document.getElementById("input").value
+
+try{
+let decoded=atob(text)
+document.getElementById("output").innerText=decoded
+}
+catch{
+document.getElementById("output").innerText="Invalid encoded text"
+}
 
 }
 
-function calculate(){
+/* Matrix Background */
 
-let v=document.getElementById("calcInput").value
+const canvas=document.getElementById("matrix")
+const ctx=canvas.getContext("2d")
 
-document.getElementById("calcResult").innerText=eval(v)
+canvas.height=window.innerHeight
+canvas.width=window.innerWidth
 
-}
+let letters="01"
+letters=letters.split("")
 
-function saveNotes(){
+let fontSize=14
+let columns=canvas.width/fontSize
+let drops=[]
 
-localStorage.setItem("notes",document.getElementById("notesText").value)
+for(let x=0;x<columns;x++)
+drops[x]=1
 
-alert("Saved")
+function draw(){
 
-}
+ctx.fillStyle="rgba(0,0,0,0.05)"
+ctx.fillRect(0,0,canvas.width,canvas.height)
 
-function count(){
+ctx.fillStyle="#00ff00"
+ctx.font=fontSize+"px monospace"
 
-let t=document.getElementById("text").value
+for(let i=0;i<drops.length;i++){
 
-document.getElementById("countResult").innerText="Characters: "+t.length
+let text=letters[Math.floor(Math.random()*letters.length)]
 
-}
+ctx.fillText(text,i*fontSize,drops[i]*fontSize)
 
-function sendMessage(){
+if(drops[i]*fontSize>canvas.height && Math.random()>0.975)
+drops[i]=0
 
-let input=document.getElementById("chatInput")
-let text=input.value.trim()
-
-if(text==="") return
-
-addMessage(text,"user")
-
-let reply=botReply(text)
-
-setTimeout(()=>{
-addMessage(reply,"bot")
-},500)
-
-input.value=""
+drops[i]++
 
 }
 
-function addMessage(text,type){
-
-let box=document.getElementById("chatBox")
-
-let msg=document.createElement("div")
-
-msg.classList.add("message",type)
-
-msg.innerText=text
-
-box.appendChild(msg)
-
-box.scrollTop=box.scrollHeight
-
 }
 
-function botReply(input){
-
-input=input.toLowerCase()
-
-if(input.includes("hello")||input.includes("hi"))
-return "Hello! 👋"
-
-if(input.includes("who made you"))
-return "Ankush made this website."
-
-if(input.includes("help"))
-return "Try the tools in the sidebar."
-
-if(input.includes("password"))
-return "Use the password generator tool."
-
-return "Interesting question!"
-
-}
-
-function enterSend(e){
-
-if(e.key==="Enter") sendMessage()
-
-}
+setInterval(draw,33)
 
 </script>
 
 </body>
 </html>
-```
+
