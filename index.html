@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Cyber Encoder</title>
+<title>Cyber Terminal Encoder</title>
 
 <style>
 
@@ -22,17 +22,17 @@ z-index:-1;
 }
 
 .container{
-width:600px;
+width:700px;
 margin:auto;
-margin-top:80px;
-background:rgba(0,0,0,0.8);
-padding:30px;
+margin-top:70px;
+background:rgba(0,0,0,0.85);
 border:1px solid #00ff00;
-box-shadow:0 0 20px #00ff00;
-text-align:center;
+box-shadow:0 0 25px #00ff00;
+padding:25px;
 }
 
 h1{
+text-align:center;
 margin-bottom:20px;
 }
 
@@ -69,7 +69,21 @@ border:1px solid #00ff00;
 min-height:60px;
 }
 
+.history{
+margin-top:25px;
+border:1px solid #00ff00;
+padding:10px;
+max-height:150px;
+overflow-y:auto;
+font-size:14px;
+}
+
+.historyTitle{
+margin-bottom:5px;
+}
+
 </style>
+
 </head>
 
 <body>
@@ -78,7 +92,7 @@ min-height:60px;
 
 <div class="container">
 
-<h1>Cyber Encoder / Decoder</h1>
+<h1>CYBER TERMINAL ENCODER</h1>
 
 <textarea id="input" placeholder="Enter text..."></textarea>
 
@@ -89,11 +103,53 @@ min-height:60px;
 
 <div class="output" id="output"></div>
 
+<div class="history">
+<div class="historyTitle">History:</div>
+<div id="historyList"></div>
+</div>
+
 </div>
 
 <script>
 
-/* Encoder */
+/* typing animation */
+
+function typeOutput(text){
+
+let output=document.getElementById("output")
+output.innerHTML=""
+
+let i=0
+
+function typing(){
+
+if(i<text.length){
+output.innerHTML+=text.charAt(i)
+i++
+setTimeout(typing,20)
+}
+
+}
+
+typing()
+
+}
+
+/* history */
+
+function addHistory(action,input,result){
+
+let history=document.getElementById("historyList")
+
+let item=document.createElement("div")
+
+item.innerText=action+": "+input+" → "+result
+
+history.prepend(item)
+
+}
+
+/* encode */
 
 function encode(){
 
@@ -101,27 +157,36 @@ let text=document.getElementById("input").value
 
 let encoded=btoa(text)
 
-document.getElementById("output").innerText=encoded
+typeOutput(encoded)
+
+addHistory("ENCODE",text,encoded)
 
 }
 
-/* Decoder */
+/* decode */
 
 function decode(){
 
 let text=document.getElementById("input").value
 
 try{
+
 let decoded=atob(text)
-document.getElementById("output").innerText=decoded
+
+typeOutput(decoded)
+
+addHistory("DECODE",text,decoded)
+
 }
 catch{
-document.getElementById("output").innerText="Invalid encoded text"
-}
+
+typeOutput("Invalid encoded text")
 
 }
 
-/* Matrix Background */
+}
+
+/* MATRIX BACKGROUND */
 
 const canvas=document.getElementById("matrix")
 const ctx=canvas.getContext("2d")
