@@ -9,70 +9,102 @@
 body{
 margin:0;
 font-family:Arial;
+background:#0f0f0f;
 color:white;
+}
+
+.header{
+background:#111;
+padding:20px;
+font-size:28px;
 text-align:center;
-background:black;
-overflow-x:hidden;
-}
-
-canvas{
-position:fixed;
-top:0;
-left:0;
-z-index:-1;
-}
-
-header{
-padding:40px;
-font-size:40px;
-font-weight:bold;
 color:#00ffcc;
-text-shadow:0 0 20px #00ffcc;
 }
 
 .container{
 display:flex;
-flex-wrap:wrap;
-justify-content:center;
+height:90vh;
+}
+
+.sidebar{
+width:220px;
+background:#151515;
+padding-top:20px;
+}
+
+.sidebar button{
+display:block;
+width:90%;
+margin:10px auto;
+padding:12px;
+background:#00ffcc;
+border:none;
+cursor:pointer;
+border-radius:6px;
+}
+
+.main{
+flex:1;
+padding:30px;
+overflow:auto;
 }
 
 .tool{
-background:rgba(0,0,0,0.7);
-border:1px solid #00ffcc;
-border-radius:10px;
-width:260px;
-padding:20px;
-margin:20px;
-box-shadow:0 0 10px #00ffcc;
-transition:0.3s;
+display:none;
 }
 
-.tool:hover{
-transform:scale(1.05);
-box-shadow:0 0 25px #00ffcc;
+input,textarea{
+width:300px;
+padding:10px;
+margin-top:10px;
 }
 
-button{
+button.action{
+margin-top:10px;
+padding:10px 20px;
 background:#00ffcc;
 border:none;
-padding:10px 20px;
-font-size:14px;
 cursor:pointer;
-border-radius:5px;
-margin-top:10px;
 }
 
-textarea,input{
-width:90%;
-padding:8px;
-margin-top:10px;
-border-radius:5px;
-border:none;
+#chatBox{
+width:100%;
+max-width:600px;
+height:350px;
+background:#111;
+border:1px solid #00ffcc;
+overflow-y:auto;
+padding:10px;
+border-radius:10px;
+margin-bottom:10px;
 }
 
-footer{
-margin-top:60px;
-opacity:0.7;
+.message{
+padding:8px 12px;
+margin:6px;
+border-radius:8px;
+max-width:70%;
+}
+
+.user{
+background:#00ffcc;
+color:black;
+margin-left:auto;
+}
+
+.bot{
+background:#333;
+color:white;
+}
+
+.chatInputArea{
+display:flex;
+gap:10px;
+}
+
+.chatInputArea input{
+flex:1;
+padding:10px;
 }
 
 </style>
@@ -81,207 +113,185 @@ opacity:0.7;
 
 <body>
 
-<canvas id="matrix"></canvas>
-
-<header>⚡ Power Web Tools</header>
+<div class="header">⚡ Power Web Tools</div>
 
 <div class="container">
 
-<div class="tool">
-<h3>Password Generator</h3>
-<button onclick="generatePass()">Generate</button>
-<p id="password"></p>
+<div class="sidebar">
+
+<button onclick="show('password')">Password</button>
+<button onclick="show('calc')">Calculator</button>
+<button onclick="show('notes')">Notes</button>
+<button onclick="show('counter')">Text Counter</button>
+<button onclick="show('chat')">AI Chat</button>
+
 </div>
 
-<div class="tool">
-<h3>Random Number</h3>
-<button onclick="randomNumber()">Generate</button>
-<p id="number"></p>
+<div class="main">
+
+<div id="password" class="tool">
+<h2>Password Generator</h2>
+<button class="action" onclick="generate()">Generate</button>
+<p id="pass"></p>
 </div>
 
-<div class="tool">
-<h3>Calculator</h3>
-<input id="calc" placeholder="Example: 5+5">
-<button onclick="calculate()">Calculate</button>
+<div id="calc" class="tool">
+<h2>Calculator</h2>
+<input id="calcInput">
+<br>
+<button class="action" onclick="calculate()">Calculate</button>
 <p id="calcResult"></p>
 </div>
 
-<div class="tool">
-<h3>Save Notes</h3>
-<textarea id="notes"></textarea>
-<button onclick="saveNotes()">Save</button>
+<div id="notes" class="tool">
+<h2>Notes</h2>
+<textarea id="notesText"></textarea>
+<br>
+<button class="action" onclick="saveNotes()">Save</button>
 </div>
 
-<div class="tool">
-<h3>Text Counter</h3>
+<div id="counter" class="tool">
+<h2>Text Counter</h2>
 <textarea id="text"></textarea>
-<button onclick="countText()">Count</button>
-<p id="count"></p>
+<br>
+<button class="action" onclick="count()">Count</button>
+<p id="countResult"></p>
 </div>
 
-<div class="tool">
-<h3>Base64 Encoder</h3>
-<textarea id="encodeText"></textarea>
-<button onclick="encode()">Encode</button>
-<p id="encoded"></p>
-</div>
+<div id="chat" class="tool">
 
-<div class="tool">
-<h3>Base64 Decoder</h3>
-<textarea id="decodeText"></textarea>
-<button onclick="decode()">Decode</button>
-<p id="decoded"></p>
-</div>
+<h2>AI Chat</h2>
 
-<div class="tool">
-<h3>AI Chatbot</h3>
-<input id="chatInput" placeholder="Ask something...">
-<button onclick="chat()">Send</button>
-<p id="chatReply"></p>
-</div>
+<div id="chatBox"></div>
 
-<div class="tool">
-<h3>Text Summarizer</h3>
-<textarea id="summaryText"></textarea>
-<button onclick="summarize()">Summarize</button>
-<p id="summaryResult"></p>
+<div class="chatInputArea">
+<input id="chatInput" placeholder="Type a message..." onkeypress="enterSend(event)">
+<button onclick="sendMessage()">Send</button>
 </div>
 
 </div>
 
-<footer>
-Made by Ankush 🚀
-</footer>
+</div>
+
+</div>
 
 <script>
 
-/* Password */
-function generatePass(){
-let chars="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#"
+function show(id){
+
+let tools=document.querySelectorAll(".tool")
+
+tools.forEach(t=>t.style.display="none")
+
+document.getElementById(id).style.display="block"
+
+}
+
+show("password")
+
+function generate(){
+
+let chars="abcdefghijklmnopqrstuvwxyz0123456789"
+
 let pass=""
+
 for(let i=0;i<12;i++){
+
 pass+=chars[Math.floor(Math.random()*chars.length)]
-}
-document.getElementById("password").innerText=pass
+
 }
 
-/* Random */
-function randomNumber(){
-document.getElementById("number").innerText=Math.floor(Math.random()*1000)
+document.getElementById("pass").innerText=pass
+
 }
 
-/* Calculator */
 function calculate(){
-let val=document.getElementById("calc").value
-try{
-document.getElementById("calcResult").innerText=eval(val)
-}catch{
-document.getElementById("calcResult").innerText="Error"
-}
+
+let v=document.getElementById("calcInput").value
+
+document.getElementById("calcResult").innerText=eval(v)
+
 }
 
-/* Notes */
 function saveNotes(){
-let note=document.getElementById("notes").value
-localStorage.setItem("notes",note)
-alert("Saved!")
+
+localStorage.setItem("notes",document.getElementById("notesText").value)
+
+alert("Saved")
+
 }
 
-window.onload=function(){
-document.getElementById("notes").value=localStorage.getItem("notes")||""
-}
+function count(){
 
-/* Counter */
-function countText(){
 let t=document.getElementById("text").value
-document.getElementById("count").innerText="Characters: "+t.length
+
+document.getElementById("countResult").innerText="Characters: "+t.length
+
 }
 
-/* Base64 */
-function encode(){
-let t=document.getElementById("encodeText").value
-document.getElementById("encoded").innerText=btoa(t)
+function sendMessage(){
+
+let input=document.getElementById("chatInput")
+let text=input.value.trim()
+
+if(text==="") return
+
+addMessage(text,"user")
+
+let reply=botReply(text)
+
+setTimeout(()=>{
+addMessage(reply,"bot")
+},500)
+
+input.value=""
+
 }
 
-function decode(){
-let t=document.getElementById("decodeText").value
-try{
-document.getElementById("decoded").innerText=atob(t)
-}catch{
-document.getElementById("decoded").innerText="Invalid Base64"
-}
-}
+function addMessage(text,type){
 
-/* Chatbot */
-function chat(){
-let input=document.getElementById("chatInput").value.toLowerCase()
-let reply="I'm not sure about that."
+let box=document.getElementById("chatBox")
 
-if(input.includes("hello")||input.includes("hi")){
-reply="Hello! Welcome to Power Web Tools."
-}
-else if(input.includes("your name")){
-reply="I am the assistant of this website."
-}
-else if(input.includes("who made you")){
-reply="This website was created by Ankush."
-}
-else if(input.includes("help")){
-reply="Try the tools on this page!"
+let msg=document.createElement("div")
+
+msg.classList.add("message",type)
+
+msg.innerText=text
+
+box.appendChild(msg)
+
+box.scrollTop=box.scrollHeight
+
 }
 
-document.getElementById("chatReply").innerText=reply
+function botReply(input){
+
+input=input.toLowerCase()
+
+if(input.includes("hello")||input.includes("hi"))
+return "Hello! 👋"
+
+if(input.includes("who made you"))
+return "Ankush made this website."
+
+if(input.includes("help"))
+return "Try the tools in the sidebar."
+
+if(input.includes("password"))
+return "Use the password generator tool."
+
+return "Interesting question!"
+
 }
 
-/* Summarizer */
-function summarize(){
-let text=document.getElementById("summaryText").value
-let sentences=text.split(".")
-let result=sentences.slice(0,2).join(".")
-document.getElementById("summaryResult").innerText=result
+function enterSend(e){
+
+if(e.key==="Enter") sendMessage()
+
 }
-
-/* Matrix Background */
-
-const canvas=document.getElementById("matrix")
-const ctx=canvas.getContext("2d")
-
-canvas.height=window.innerHeight
-canvas.width=window.innerWidth
-
-let letters="01"
-letters=letters.split("")
-
-let fontSize=14
-let columns=canvas.width/fontSize
-
-let drops=[]
-for(let x=0;x<columns;x++)
-drops[x]=1
-
-function draw(){
-ctx.fillStyle="rgba(0,0,0,0.05)"
-ctx.fillRect(0,0,canvas.width,canvas.height)
-
-ctx.fillStyle="#0F0"
-ctx.font=fontSize+"px monospace"
-
-for(let i=0;i<drops.length;i++){
-let text=letters[Math.floor(Math.random()*letters.length)]
-ctx.fillText(text,i*fontSize,drops[i]*fontSize)
-
-if(drops[i]*fontSize>canvas.height && Math.random()>0.975)
-drops[i]=0
-
-drops[i]++
-}
-}
-
-setInterval(draw,33)
 
 </script>
 
 </body>
 </html>
 ```
-
