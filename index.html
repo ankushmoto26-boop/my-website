@@ -1,1 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Power Web Tools</title>
 
+<style>
+
+body{
+margin:0;
+font-family:Arial;
+background:linear-gradient(135deg,#0f0f0f,#1f1f1f);
+color:white;
+text-align:center;
+}
+
+header{
+padding:40px;
+font-size:40px;
+font-weight:bold;
+color:#00ffcc;
+text-shadow:0 0 15px #00ffcc;
+}
+
+.container{
+margin-top:40px;
+}
+
+.tool{
+background:#111;
+border:1px solid #00ffcc;
+border-radius:10px;
+width:250px;
+padding:20px;
+margin:20px;
+display:inline-block;
+box-shadow:0 0 10px #00ffcc;
+transition:0.3s;
+}
+
+.tool:hover{
+transform:scale(1.1);
+box-shadow:0 0 25px #00ffcc;
+}
+
+button{
+background:#00ffcc;
+border:none;
+padding:10px 20px;
+font-size:16px;
+cursor:pointer;
+border-radius:5px;
+}
+
+footer{
+margin-top:80px;
+opacity:0.7;
+}
+
+</style>
+</head>
+
+<body>
+
+<header>⚡ Power Web Tools</header>
+
+<div class="container">
+
+<div class="tool">
+<h3>Password Generator</h3>
+<button onclick="generate()">Generate</button>
+<p id="password"></p>
+</div>
+
+<div class="tool">
+<h3>Random Number</h3>
+<button onclick="random()">Generate</button>
+<p id="number"></p>
+</div>
+
+<div class="tool">
+<h3>Click Counter</h3>
+<button onclick="count()">Click</button>
+<p id="counter">0</p>
+</div>
+
+</div>
+
+<footer>
+Made by Ankush 🚀
+</footer>
+
+<script>
+
+function generate(){
+let chars="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#"
+let pass=""
+for(let i=0;i<12;i++){
+pass+=chars[Math.floor(Math.random()*chars.length)]
+}
+document.getElementById("password").innerText=pass
+}
+
+function random(){
+document.getElementById("number").innerText=Math.floor(Math.random()*1000)
+}
+
+let c=0
+function count(){
+c++
+document.getElementById("counter").innerText=c
+}
+
+</script>
+
+</body>
+</html>
