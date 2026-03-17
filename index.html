@@ -9,9 +9,17 @@
 body{
 margin:0;
 font-family:Arial;
-background:linear-gradient(135deg,#0f0f0f,#1f1f1f);
 color:white;
 text-align:center;
+background:black;
+overflow-x:hidden;
+}
+
+canvas{
+position:fixed;
+top:0;
+left:0;
+z-index:-1;
 }
 
 header{
@@ -19,7 +27,7 @@ padding:40px;
 font-size:40px;
 font-weight:bold;
 color:#00ffcc;
-text-shadow:0 0 15px #00ffcc;
+text-shadow:0 0 20px #00ffcc;
 }
 
 .container{
@@ -29,7 +37,7 @@ justify-content:center;
 }
 
 .tool{
-background:#111;
+background:rgba(0,0,0,0.7);
 border:1px solid #00ffcc;
 border-radius:10px;
 width:260px;
@@ -64,7 +72,7 @@ border:none;
 
 footer{
 margin-top:60px;
-opacity:0.6;
+opacity:0.7;
 }
 
 </style>
@@ -72,6 +80,8 @@ opacity:0.6;
 </head>
 
 <body>
+
+<canvas id="matrix"></canvas>
 
 <header>⚡ Power Web Tools</header>
 
@@ -98,14 +108,8 @@ opacity:0.6;
 
 <div class="tool">
 <h3>Save Notes</h3>
-<textarea id="notes" placeholder="Write notes..."></textarea>
+<textarea id="notes"></textarea>
 <button onclick="saveNotes()">Save</button>
-</div>
-
-<div class="tool">
-<h3>Random Color</h3>
-<button onclick="color()">Generate</button>
-<p id="colorCode"></p>
 </div>
 
 <div class="tool">
@@ -137,8 +141,8 @@ opacity:0.6;
 </div>
 
 <div class="tool">
-<h3>AI Text Summarizer</h3>
-<textarea id="summaryText" placeholder="Paste text here..."></textarea>
+<h3>Text Summarizer</h3>
+<textarea id="summaryText"></textarea>
 <button onclick="summarize()">Summarize</button>
 <p id="summaryResult"></p>
 </div>
@@ -151,6 +155,7 @@ Made by Ankush 🚀
 
 <script>
 
+/* Password */
 function generatePass(){
 let chars="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#"
 let pass=""
@@ -160,10 +165,12 @@ pass+=chars[Math.floor(Math.random()*chars.length)]
 document.getElementById("password").innerText=pass
 }
 
+/* Random */
 function randomNumber(){
 document.getElementById("number").innerText=Math.floor(Math.random()*1000)
 }
 
+/* Calculator */
 function calculate(){
 let val=document.getElementById("calc").value
 try{
@@ -173,6 +180,7 @@ document.getElementById("calcResult").innerText="Error"
 }
 }
 
+/* Notes */
 function saveNotes(){
 let note=document.getElementById("notes").value
 localStorage.setItem("notes",note)
@@ -183,17 +191,13 @@ window.onload=function(){
 document.getElementById("notes").value=localStorage.getItem("notes")||""
 }
 
-function color(){
-let c="#"+Math.floor(Math.random()*16777215).toString(16)
-document.getElementById("colorCode").innerText=c
-document.body.style.background=c
-}
-
+/* Counter */
 function countText(){
 let t=document.getElementById("text").value
 document.getElementById("count").innerText="Characters: "+t.length
 }
 
+/* Base64 */
 function encode(){
 let t=document.getElementById("encodeText").value
 document.getElementById("encoded").innerText=btoa(t)
@@ -208,32 +212,72 @@ document.getElementById("decoded").innerText="Invalid Base64"
 }
 }
 
+/* Chatbot */
 function chat(){
 let input=document.getElementById("chatInput").value.toLowerCase()
-let reply="I don't understand."
+let reply="I'm not sure about that."
 
-if(input.includes("hello") || input.includes("hi")){
-reply="Hello! How can I help you?"
+if(input.includes("hello")||input.includes("hi")){
+reply="Hello! Welcome to Power Web Tools."
 }
 else if(input.includes("your name")){
-reply="I am the AI assistant of Power Web Tools."
+reply="I am the assistant of this website."
 }
 else if(input.includes("who made you")){
-reply="I was created by Ankush."
+reply="This website was created by Ankush."
 }
 else if(input.includes("help")){
-reply="Use the tools on this website!"
+reply="Try the tools on this page!"
 }
 
 document.getElementById("chatReply").innerText=reply
 }
 
+/* Summarizer */
 function summarize(){
 let text=document.getElementById("summaryText").value
 let sentences=text.split(".")
 let result=sentences.slice(0,2).join(".")
 document.getElementById("summaryResult").innerText=result
 }
+
+/* Matrix Background */
+
+const canvas=document.getElementById("matrix")
+const ctx=canvas.getContext("2d")
+
+canvas.height=window.innerHeight
+canvas.width=window.innerWidth
+
+let letters="01"
+letters=letters.split("")
+
+let fontSize=14
+let columns=canvas.width/fontSize
+
+let drops=[]
+for(let x=0;x<columns;x++)
+drops[x]=1
+
+function draw(){
+ctx.fillStyle="rgba(0,0,0,0.05)"
+ctx.fillRect(0,0,canvas.width,canvas.height)
+
+ctx.fillStyle="#0F0"
+ctx.font=fontSize+"px monospace"
+
+for(let i=0;i<drops.length;i++){
+let text=letters[Math.floor(Math.random()*letters.length)]
+ctx.fillText(text,i*fontSize,drops[i]*fontSize)
+
+if(drops[i]*fontSize>canvas.height && Math.random()>0.975)
+drops[i]=0
+
+drops[i]++
+}
+}
+
+setInterval(draw,33)
 
 </script>
 
