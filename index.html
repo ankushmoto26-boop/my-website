@@ -126,43 +126,62 @@ View Visitors
 
 </div>
 
-<script>
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+
+const firebaseConfig = {
+apiKey: "AIzaSyDNfTMrfb4d8S4S2sGGfgXvesnO3i4viuc",
+authDomain: "cyber-encoder.firebaseapp.com",
+projectId: "cyber-encoder",
+storageBucket: "cyber-encoder.firebasestorage.app",
+messagingSenderId: "885365881587",
+appId: "1:885365881587:web:09d4d4f702009ebfbb1586",
+measurementId: "G-5NVC4SGPTN"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
 /* ask name */
 
-let name = prompt("Enter your name:")
+let name = prompt("Enter your name:");
 
 if(name){
 
-let visitors = JSON.parse(localStorage.getItem("visitors") || "[]")
-
-visitors.push(name)
-
-localStorage.setItem("visitors", JSON.stringify(visitors))
+await addDoc(collection(db,"visitors"),{
+name:name,
+time:Date.now()
+});
 
 }
+
+/* admin access */
 
 if(name === "dev=1"){
-document.getElementById("adminBtn").style.display="block"
+document.getElementById("adminBtn").style.display="block";
 }
 
-/* show visitor list */
+/* show visitors */
 
-function showVisitors(){
+window.showVisitors = async function(){
 
-let visitors = JSON.parse(localStorage.getItem("visitors") || "[]")
+const querySnapshot = await getDocs(collection(db,"visitors"));
 
-let list = document.getElementById("visitorList")
+let list=document.getElementById("visitorList");
 
-list.innerHTML=""
+list.innerHTML="";
 
-visitors.forEach(v=>{
-let item=document.createElement("div")
-item.innerText=v
-list.appendChild(item)
-})
+querySnapshot.forEach((doc)=>{
 
-document.getElementById("visitorBox").style.display="block"
+let item=document.createElement("div");
+item.innerText=doc.data().name;
+list.appendChild(item);
+
+});
+
+document.getElementById("visitorBox").style.display="block";
 
 }
 
@@ -170,120 +189,119 @@ document.getElementById("visitorBox").style.display="block"
 
 function typeOutput(text){
 
-let output=document.getElementById("output")
-output.innerHTML=""
+let output=document.getElementById("output");
+output.innerHTML="";
 
-let i=0
+let i=0;
 
 function typing(){
 
 if(i<text.length){
-output.innerHTML+=text.charAt(i)
-i++
-setTimeout(typing,20)
+output.innerHTML+=text.charAt(i);
+i++;
+setTimeout(typing,20);
 }
 
 }
 
-typing()
+typing();
 
 }
 
-/* history */
+window.encode=function(){
 
-function addHistory(action,input,result){
+let text=document.getElementById("input").value;
 
-let history=document.getElementById("historyList")
+let encoded=btoa(text);
 
-let item=document.createElement("div")
+typeOutput(encoded);
 
-item.innerText=action+": "+input+" → "+result
-
-history.prepend(item)
+addHistory("ENCODE",text,encoded);
 
 }
 
-/* encode */
+window.decode=function(){
 
-function encode(){
-
-let text=document.getElementById("input").value
-
-let encoded=btoa(text)
-
-typeOutput(encoded)
-
-addHistory("ENCODE",text,encoded)
-
-}
-
-/* decode */
-
-function decode(){
-
-let text=document.getElementById("input").value
+let text=document.getElementById("input").value;
 
 try{
 
-let decoded=atob(text)
+let decoded=atob(text);
 
-typeOutput(decoded)
+typeOutput(decoded);
 
-addHistory("DECODE",text,decoded)
+addHistory("DECODE",text,decoded);
 
 }
 catch{
 
-typeOutput("Invalid encoded text")
+typeOutput("Invalid encoded text");
 
 }
 
 }
+
+function addHistory(action,input,result){
+
+let history=document.getElementById("historyList");
+
+let item=document.createElement("div");
+
+item.innerText=action+": "+input+" → "+result;
+
+history.prepend(item);
+
+}
+
+</script>
+
+<script>
 
 /* MATRIX BACKGROUND */
 
-const canvas=document.getElementById("matrix")
-const ctx=canvas.getContext("2d")
+const canvas=document.getElementById("matrix");
+const ctx=canvas.getContext("2d");
 
-canvas.height=window.innerHeight
-canvas.width=window.innerWidth
+canvas.height=window.innerHeight;
+canvas.width=window.innerWidth;
 
-let letters="01"
-letters=letters.split("")
+let letters="01";
+letters=letters.split("");
 
-let fontSize=14
-let columns=canvas.width/fontSize
-let drops=[]
+let fontSize=14;
+let columns=canvas.width/fontSize;
+let drops=[];
 
 for(let x=0;x<columns;x++)
-drops[x]=1
+drops[x]=1;
 
 function draw(){
 
-ctx.fillStyle="rgba(0,0,0,0.05)"
-ctx.fillRect(0,0,canvas.width,canvas.height)
+ctx.fillStyle="rgba(0,0,0,0.05)";
+ctx.fillRect(0,0,canvas.width,canvas.height);
 
-ctx.fillStyle="#00ff00"
-ctx.font=fontSize+"px monospace"
+ctx.fillStyle="#00ff00";
+ctx.font=fontSize+"px monospace";
 
 for(let i=0;i<drops.length;i++){
 
-let text=letters[Math.floor(Math.random()*letters.length)]
+let text=letters[Math.floor(Math.random()*letters.length)];
 
-ctx.fillText(text,i*fontSize,drops[i]*fontSize)
+ctx.fillText(text,i*fontSize,drops[i]*fontSize);
 
 if(drops[i]*fontSize>canvas.height && Math.random()>0.975)
-drops[i]=0
+drops[i]=0;
 
-drops[i]++
-
-}
+drops[i]++;
 
 }
 
-setInterval(draw,33)
+}
+
+setInterval(draw,33);
 
 </script>
 
 </body>
 </html>
+
